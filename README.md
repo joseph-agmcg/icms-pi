@@ -11,7 +11,7 @@ Automação com **Playwright (Python assíncrono)** para o portal DAR Web da SEF
 3. Informar a Inscrição Estadual (I.E.) no campo e clicar em **Avançar**.
 4. No formulário "Cálculos do Imposto", preencher **período de referência** (mês/ano), **data de vencimento**, **data de pagamento** (ex.: dia 15 do mês de referência) e **valor principal** (coluna ATC da planilha).
 5. Clicar em **Calcular Imposto**.
-6. (Opcional/futuro) Clicar em **Avançar** para seguir ao pagamento e concluir o fluxo.
+6. Clicar em **Avançar** para seguir ao pagamento e concluir o fluxo.
 7. Fazer o **download do comprovante** da DAR gerada (quando aplicável) e **renomear o arquivo** com o padrão desejado (por I.E. e competência).
 8. Repetir os passos 1 a 7 para cada I.E./filial (em geral a partir de uma planilha Excel com as I.E.s, coluna **ATC** e período).
 
