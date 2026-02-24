@@ -23,7 +23,7 @@ A automação replica esse fluxo por I.E., preenchendo os campos a partir do Exc
 
 Quando aplicável, vídeo do processo manual para referência futura:
 
-- **[Pasta com vídeos do processo manual (ICMS ATC PI, etc.)](https://drive.google.com/drive/folders/1lXeoZHH2d5bk2gXDSO87DxaoDQdNA748)**
+- **[Pasta com vídeos do processo manual](https://drive.google.com/drive/folders/1lXeoZHH2d5bk2gXDSO87DxaoDQdNA748)**
 
 ---
 
