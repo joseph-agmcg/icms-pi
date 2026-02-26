@@ -4,6 +4,9 @@
 venv/
 env/
 
+# Planilhas/dados locais
+icms.xlsx
+
 # Logs e saídas
 logs/
 *.log
