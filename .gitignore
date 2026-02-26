@@ -5,7 +5,7 @@ venv/
 env/
 
 # Planilhas/dados locais
-icms.xlsx
+*.xlsx
 
 # Logs e saídas
 logs/
