@@ -243,12 +243,11 @@ class AutomacaoDifalPI:
                     )
                     continue
 
-                # [TESTE] Comentado para permitir testar com data de vencimento no passado
-                # if _data_vencimento_no_passado(mes_ref, ano_ref):
-                #     motivo = "Data de vencimento no passado — portal não permite datas passadas"
-                #     ies_erro.append((ie, motivo))
-                #     logger.info("IE %s pulada: %s", ie, motivo)
-                #     continue
+                if _data_vencimento_no_passado(mes_ref, ano_ref):
+                    motivo = "Data de vencimento no passado — portal não permite datas passadas"
+                    ies_erro.append((ie, motivo))
+                    logger.info("IE %s pulada: %s", ie, motivo)
+                    continue
 
                 logger.info("Processando IE %s DIFAL (%d/%d).", ie, indice + 1, total)
 

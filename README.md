@@ -8,7 +8,7 @@ Automação para processos de **ICMS** no portal DAR Web da SEFAZ-PI: **ATC** (A
 
 - **Interface gráfica** (CustomTkinter): carregar planilha Excel, visualizar I.E.s e valores, selecionar quais executar e rodar em lote.
 - **Planilha**: deve conter colunas de Inscrição Estadual e valores de **ATC**, **Normal** e **Difal**; o sistema extrai automaticamente o período e os dados para preenchimento da DAR.
-- **Processos**: ATC (113011); DIFAL (113001 – Imposto, Juros e Multa); Normal em desenvolvimento.
+- **Processos**: ATC (113011); Normal (113000, em construção); DIFAL (113001 – Imposto, Juros e Multa).
 
 ---
 
@@ -32,9 +32,9 @@ Automação para processos de **ICMS** no portal DAR Web da SEFAZ-PI: **ATC** (A
 
 | Módulo | Descrição | README |
 |--------|-----------|--------|
-| **ATC** (Antecipado) | Fluxo 113011 no DAR Web, passo a passo e automação. | [→ `src/atc/README.md`](src/atc/README.md) |
-| **Normal** | ICMS Normal PI. | [→ `src/normal/README.md`](src/normal/README.md) |
-| **Difal** (113001) | DIFAL – Imposto, Juros e Multa (valor DIF. ALIQUOTA). | [→ `src/difal/README.md`](src/difal/README.md) |
+| **ATC** (113011) | Fluxo 113011 no DAR Web, passo a passo e automação. | [→ `src/atc/README.md`](src/atc/README.md) |
+| **Normal** (113000) | Fluxo 113000 no DAR Web, passo a passo e automação (em construção). | [→ `src/normal/README.md`](src/normal/README.md) |
+| **Difal** (113001) | Fluxo 113001 no DAR Web, passo a passo e automação (Imposto, Juros e Multa; valor DIF. ALIQUOTA). | [→ `src/difal/README.md`](src/difal/README.md) |
 
 ---
 

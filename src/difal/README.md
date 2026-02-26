@@ -2,7 +2,7 @@
 
 Este documento descreve o **processo DIFAL** (Diferencial de Alíquota) no portal DAR Web da **SEFAZ-PI**: fluxo manual, regras de negócio e como executar a automação.
 
-> A estrutura de pastas e arquivos do projeto está no **README.md** da raiz do repositório.
+> A estrutura de pastas e arquivos do projeto está no [README principal](../../README.md).
 
 ---
 

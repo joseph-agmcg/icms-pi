@@ -303,7 +303,7 @@ def obter_dados_para_dae(
 ) -> list[dict[str, object]]:
     """
     A partir da lista de linhas completas, retorna os dados necessários para a DAE:
-    ie, ie_digitos, valor_atc, valor_difal (DIF. ALIQUOTA), mes_ref, ano_ref.
+    ie, ie_digitos, valor_atc, valor_normal (NORMAL), valor_difal (DIF. ALIQUOTA), mes_ref, ano_ref.
     """
     chave_ie = _obter_chave_ie(nome_para_indice)
     if chave_ie is None:
@@ -313,12 +313,14 @@ def obter_dados_para_dae(
     for dados in linhas:
         ie_norm = dados.get("ie_normalizada", "")
         valor_atc = _obter_valor_atc(dados)
+        valor_normal = _obter_valor_normal(dados)
         valor_difal = _obter_valor_difal(dados)
         lista.append(
             {
                 "ie": ie_norm,
                 "ie_digitos": ie_norm,
                 "valor_atc": valor_atc,
+                "valor_normal": valor_normal,
                 "valor_difal": valor_difal,
                 "mes_ref": mes_ref,
                 "ano_ref": ano_ref,
@@ -344,6 +346,26 @@ def _obter_valor_atc(dados: dict[str, object]) -> float | None:
     """
     for chave, valor in dados.items():
         if isinstance(chave, str) and "atc" in chave.lower():
+            if isinstance(valor, (int, float)):
+                return float(valor)
+            if isinstance(valor, str):
+                s = valor.strip().replace(".", "").replace(",", ".")
+                try:
+                    return float(s)
+                except ValueError:
+                    continue
+    return None
+
+
+def _obter_valor_normal(dados: dict[str, object]) -> float | None:
+    """
+    Retorna o valor da coluna NORMAL a partir dos dados de uma linha.
+    Procura chave cujo nome normalizado seja "normal" (ex.: "NORMAL"), sem incluir "ie_normalizada".
+    """
+    for chave, valor in dados.items():
+        if not isinstance(chave, str):
+            continue
+        if chave.strip().lower() == "normal":
             if isinstance(valor, (int, float)):
                 return float(valor)
             if isinstance(valor, str):

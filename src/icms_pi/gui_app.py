@@ -18,6 +18,7 @@ from icms_pi.excel_filiais import (
 from icms_pi.logger import configurar_logger_da_aplicacao
 from atc.automacao_sefaz_pi import AutomacaoAntecipacaoParcialPI, _valor_atc_invalido
 from difal.automacao_sefaz_pi import AutomacaoDifalPI, _valor_difal_invalido
+from normal.automacao_sefaz_pi import AutomacaoNormalPI, _valor_normal_invalido
 
 logger = configurar_logger_da_aplicacao(__name__)
 
@@ -63,9 +64,11 @@ def _formato_intervalo_ms(ms: int) -> str:
 
 
 def _item_executavel_para_processo(item: dict[str, object], processo_id: str) -> bool:
-    """Retorna True se o item tem valor válido para o processo (antecipado=ATC, difal=DIF. ALIQUOTA)."""
+    """Retorna True se o item tem valor válido para o processo (antecipado=ATC, normal=NORMAL, difal=DIF. ALIQUOTA)."""
     if processo_id == "antecipado":
         return not _valor_atc_invalido(item.get("valor_atc"))
+    if processo_id == "normal":
+        return not _valor_normal_invalido(item.get("valor_normal"))
     if processo_id == "difal":
         return not _valor_difal_invalido(item.get("valor_difal"))
     return False
@@ -108,13 +111,16 @@ def _executar_lote_em_background(
                     item for item in lista_dados
                     if not _valor_atc_invalido(item.get("valor_atc"))
                 ]
+            elif pid == "normal":
+                lista_por_processo[pid] = [
+                    item for item in lista_dados
+                    if not _valor_normal_invalido(item.get("valor_normal"))
+                ]
             elif pid == "difal":
                 lista_por_processo[pid] = [
                     item for item in lista_dados
                     if not _valor_difal_invalido(item.get("valor_difal"))
                 ]
-            elif pid == "normal":
-                lista_por_processo[pid] = []  # sem automação Normal ainda
 
     total = sum(len(lista_por_processo.get(pid, [])) for pid in processos_ids)
     intervalo_txt = _formato_intervalo_ms(configuracoes.INTERVALO_ENTRE_EXECUCOES_MS)
@@ -140,6 +146,16 @@ def _executar_lote_em_background(
                         ies_ok.extend(ok)
                         ies_erro.extend(erro)
                     loop.run_until_complete(_rodar_antecipado())
+
+            if "normal" in processos_ids:
+                lista_normal = lista_por_processo.get("normal", [])
+                if lista_normal:
+                    async def _rodar_normal() -> None:
+                        automacao = AutomacaoNormalPI(headless=headless)
+                        ok, erro = await automacao.executar_fluxo_por_ie_pi(lista_normal)
+                        ies_ok.extend(ok)
+                        ies_erro.extend(erro)
+                    loop.run_until_complete(_rodar_normal())
 
             if "difal" in processos_ids:
                 lista_difal = lista_por_processo.get("difal", [])
@@ -645,20 +661,18 @@ class App(ctk.CTk):
             lbl_cont.pack(side="left", padx=8)
             self._lbl_contador_por_processo[pid] = lbl_cont
 
+            # Valor a exibir: só o do processo atual (ATC, NORMAL ou DIF. ALIQUOTA)
+            chave_valor = {"antecipado": "valor_atc", "normal": "valor_normal", "difal": "valor_difal"}
+            valor_key = chave_valor.get(pid, "valor_atc")
+
             vars_list: list[tuple[dict[str, object], ctk.BooleanVar]] = []
             for item in itens_processo:
                 ie = _ie_para_exibicao(item.get("ie") or item.get("ie_digitos") or "")
-                val_atc = item.get("valor_atc")
-                val_difal = item.get("valor_difal")
-                atc_txt = (
-                    f"{val_atc:.2f}"
-                    if isinstance(val_atc, (int, float))
-                    else (str(val_atc) if val_atc is not None else "—")
-                )
-                difal_txt = (
-                    f"{val_difal:.2f}"
-                    if isinstance(val_difal, (int, float))
-                    else (str(val_difal) if val_difal is not None else "—")
+                val = item.get(valor_key)
+                valor_txt = (
+                    f"{val:.2f}"
+                    if isinstance(val, (int, float))
+                    else (str(val) if val is not None else "—")
                 )
                 var = ctk.BooleanVar(value=True)
                 vars_list.append((item, var))
@@ -672,11 +686,7 @@ class App(ctk.CTk):
                     font=ctk.CTkFont(family="Consolas", size=12), width=110,
                 ).pack(side="left", padx=4, pady=3)
                 ctk.CTkLabel(
-                    row, text=atc_txt,
-                    font=ctk.CTkFont(family="Consolas", size=12), width=80,
-                ).pack(side="left", padx=4, pady=3)
-                ctk.CTkLabel(
-                    row, text=difal_txt,
+                    row, text=valor_txt,
                     font=ctk.CTkFont(family="Consolas", size=12), width=80,
                 ).pack(side="left", padx=4, pady=3)
             self._selecao_por_processo[pid] = vars_list
@@ -693,13 +703,16 @@ class App(ctk.CTk):
                 item for item in self._lista_dados
                 if not _valor_atc_invalido(item.get("valor_atc"))
             ]
+        if pid == "normal":
+            return [
+                item for item in self._lista_dados
+                if not _valor_normal_invalido(item.get("valor_normal"))
+            ]
         if pid == "difal":
             return [
                 item for item in self._lista_dados
                 if not _valor_difal_invalido(item.get("valor_difal"))
             ]
-        if pid == "normal":
-            return []  # sem critério/valor Normal ainda
         return []
 
     def _marcar_todas_ies_processo(self, pid: str) -> None:
@@ -724,7 +737,7 @@ class App(ctk.CTk):
         if not self._lista_dados:
             return
         processos_ativos = [p for p, var in self._vars_processos.items() if var.get()]
-        processos_ativos = processos_ativos or ["antecipado", "difal"]
+        processos_ativos = processos_ativos or ["antecipado", "normal", "difal"]
         qtd_exec, qtd_ign = _contar_executaveis_ignoradas(
             self._lista_dados, processos_ativos
         )
@@ -788,7 +801,7 @@ class App(ctk.CTk):
         processos_ativos = [pid for pid, var in self._vars_processos.items() if var.get()]
         qtd_exec, qtd_ign = _contar_executaveis_ignoradas(
             self._lista_dados,
-            processos_ativos if processos_ativos else ["antecipado", "difal"],
+            processos_ativos if processos_ativos else ["antecipado", "normal", "difal"],
         )
         total = len(self._lista_dados)
 
@@ -821,31 +834,37 @@ class App(ctk.CTk):
         self._textbox_ies.configure(state="normal")
         self._textbox_ies.delete("1.0", "end")
 
-        # Status por processo: colunas ATC e DIFAL (pendente / —)
+        # Status por processo: colunas ATC, NORMAL e DIFAL (pendente / —)
         header = (
-            f"{'#':>4}  {'I.E.':>12}  {'Valor ATC':>14}  {'DIF. ALIQUOTA':>14}  {'ATC':>8}  {'DIFAL':>8}\n"
+            f"{'#':>4}  {'I.E.':>12}  {'Valor ATC':>14}  {'NORMAL':>14}  {'DIF. ALIQUOTA':>14}  {'ATC':>8}  {'Normal':>8}  {'DIFAL':>8}\n"
         )
-        sep = "─" * 72 + "\n"
+        sep = "─" * 96 + "\n"
         self._textbox_ies.insert("end", header)
         self._textbox_ies.insert("end", sep)
 
         for idx, item in enumerate(self._lista_dados, 1):
             ie = _ie_para_exibicao(str(item.get("ie", "")))
             valor_atc = item.get("valor_atc")
+            valor_normal = item.get("valor_normal")
             valor_difal = item.get("valor_difal")
             if _valor_atc_invalido(valor_atc):
                 atc_str = "—"
             else:
                 atc_str = f"R$ {float(valor_atc):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+            if _valor_normal_invalido(valor_normal):
+                normal_str = "—"
+            else:
+                normal_str = f"R$ {float(valor_normal):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
             if _valor_difal_invalido(valor_difal):
                 difal_str = "—"
             else:
                 difal_str = f"R$ {float(valor_difal):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
             status_atc = "pendente" if not _valor_atc_invalido(valor_atc) else "ignorada"
+            status_normal = "pendente" if not _valor_normal_invalido(valor_normal) else "ignorada"
             status_difal = "pendente" if not _valor_difal_invalido(valor_difal) else "ignorada"
             self._textbox_ies.insert(
                 "end",
-                f"{idx:>4}  {ie:>12}  {atc_str:>14}  {difal_str:>14}  {status_atc:>8}  {status_difal:>8}\n",
+                f"{idx:>4}  {ie:>12}  {atc_str:>14}  {normal_str:>14}  {difal_str:>14}  {status_atc:>8}  {status_normal:>8}  {status_difal:>8}\n",
             )
 
         self._textbox_ies.configure(state="disabled")
