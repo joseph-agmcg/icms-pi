@@ -1,14 +1,14 @@
 # ICMS-PI — Automação SEFAZ-PI
 
-Automação para processos de **ICMS** no portal DAR Web da SEFAZ-PI: **ATC** (Antecipado), **Normal** e **Difal**.
+Automação para processos de **ICMS** no portal DAR Web da SEFAZ-PI: **ATC** (Antecipação Parcial), **Normal** (Imposto, Juros e Multa) e **DIFAL** (Diferencial de Alíquota — Imposto, Juros e Multa).
 
 ---
 
 ## Visão geral
 
-- **Interface gráfica** (CustomTkinter): carregar planilha Excel, visualizar I.E.s e valores, selecionar quais executar e rodar em lote.
-- **Planilha**: deve conter colunas de Inscrição Estadual e valores de **ATC**, **Normal** e **Difal**; o sistema extrai automaticamente o período e os dados para preenchimento da DAR.
-- **Processos**: ATC (113011); Normal (113000, em construção); DIFAL (113001 – Imposto, Juros e Multa).
+- **Interface gráfica** (CustomTkinter): carregar planilha Excel, visualizar I.E. e valores, selecionar quais executar e rodar em lote.
+- **Planilha**: deve conter colunas de Inscrição Estadual e valores de **ATC**, **NORMAL** e **DIF. ALIQUOTA**; o sistema extrai automaticamente o período e os dados para preenchimento da DAR.
+- **Processos**: **ATC** (113011 – Antecipação Parcial); **Normal** (113000 – Imposto, Juros e Multa); **DIFAL** (113001 – Imposto, Juros e Multa, valor DIF. ALIQUOTA).
 
 ---
 
@@ -21,10 +21,10 @@ Automação para processos de **ICMS** no portal DAR Web da SEFAZ-PI: **ATC** (A
 | **`.env`** | Variáveis sensíveis. **Não commitar.** |
 | **`.env.example`** | Exemplo do `.env` sem valores reais. |
 | **`logs/`** | Criada automaticamente; arquivos `.log` com timestamp. |
-| **`src/icms_pi/`** | Comando central: GUI, extração Excel e logger; orquestra ATC, Normal e Difal. |
-| **`src/atc/`** | Automação do ICMS Antecipado (código 113011). |
-| **`src/normal/`** | ICMS Normal — em construção. |
-| **`src/difal/`** | Automação do ICMS DIFAL (código 113001, valor DIF. ALIQUOTA). |
+| **`src/icms_pi/`** | Comando central: GUI, extração Excel e logger; orquestra ATC, Normal e DIFAL. |
+| **`src/atc/`** | Automação do ICMS Antecipado (código 113011, coluna ATC). |
+| **`src/normal/`** | Automação do ICMS Normal (código 113000, coluna NORMAL). |
+| **`src/difal/`** | Automação do ICMS DIFAL (código 113001, coluna DIF. ALIQUOTA). |
 
 ---
 
@@ -32,9 +32,9 @@ Automação para processos de **ICMS** no portal DAR Web da SEFAZ-PI: **ATC** (A
 
 | Módulo | Descrição | README |
 |--------|-----------|--------|
-| **ATC** (113011) | Fluxo 113011 no DAR Web, passo a passo e automação. | [→ `src/atc/README.md`](src/atc/README.md) |
-| **Normal** (113000) | Fluxo 113000 no DAR Web, passo a passo e automação (em construção). | [→ `src/normal/README.md`](src/normal/README.md) |
-| **Difal** (113001) | Fluxo 113001 no DAR Web, passo a passo e automação (Imposto, Juros e Multa; valor DIF. ALIQUOTA). | [→ `src/difal/README.md`](src/difal/README.md) |
+| **ATC** (113011) | ICMS Antecipação Parcial — fluxo no DAR Web, passo a passo e automação. | [→ `src/atc/README.md`](src/atc/README.md) |
+| **Normal** (113000) | ICMS Normal — Imposto, Juros e Multa; fluxo no DAR Web, passo a passo e automação. | [→ `src/normal/README.md`](src/normal/README.md) |
+| **DIFAL** (113001) | ICMS DIFAL — Imposto, Juros e Multa (valor DIF. ALIQUOTA); fluxo no DAR Web, passo a passo e automação. | [→ `src/difal/README.md`](src/difal/README.md) |
 
 ---
 
@@ -47,4 +47,4 @@ Automação para processos de **ICMS** no portal DAR Web da SEFAZ-PI: **ATC** (A
    python -m icms_pi.gui_app
    ```
    Com o projeto instalado em modo editável (`pip install -e .`), também: `icms_pi`.
-4. Na interface: selecionar a planilha Excel, revisar I.E.s e executar o processo desejado (ATC, Normal ou Difal).
+4. Na interface: selecionar a planilha Excel, revisar I.E. e executar o processo desejado (ATC, Normal ou DIFAL).
