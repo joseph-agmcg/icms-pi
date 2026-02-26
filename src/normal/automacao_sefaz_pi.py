@@ -243,6 +243,12 @@ class AutomacaoNormalPI:
                     )
                     continue
 
+                if _data_vencimento_no_passado(mes_ref, ano_ref):
+                    motivo = "Data de vencimento no passado — portal não permite datas passadas"
+                    ies_erro.append((ie, motivo))
+                    logger.info("IE %s pulada: %s", ie, motivo)
+                    continue
+
                 logger.info("Processando IE %s Normal (%d/%d).", ie, indice + 1, total)
 
                 if indice > 0:
